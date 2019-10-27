@@ -10,7 +10,7 @@ import random
 
 def getAnswer(answerNumber):
     if answerNumber == 1:
-        return "It is " + str(answerNumber)
+        return "It is " + str(answerNumber) 
     elif answerNumber == 2:
         return "It is " + str(answerNumber)
     elif answerNumber == 3:

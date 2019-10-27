@@ -24,3 +24,12 @@ Adding helloFunction.py
 11:31 PM 10/26/2019
 Adding helloFunction2.py
 
+11:47 PM 10/26/2019
+Adding magic8Ball.py
+
+11:50 PM 10/26/2019
+Adding sameName.py
+
+12:28 AM 10/27/2019
+Adding guessTheNumber.py
+

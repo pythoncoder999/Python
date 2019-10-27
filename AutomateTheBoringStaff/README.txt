@@ -33,3 +33,8 @@ Adding sameName.py
 12:28 AM 10/27/2019
 Adding guessTheNumber.py
 
+12:30 AM 10/27/2019
+Adding allMyDogs.py
+
+12:48 AM 10/27/2019
+Adding allMyDogs2.py

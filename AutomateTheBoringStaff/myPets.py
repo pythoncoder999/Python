@@ -4,7 +4,7 @@ Created on Sun Oct 27 01:06:29 2019
 
 @author: Gunardi Saputra
 
-Adding myPets.py
+
 
 """
 myPets = ["One", "Two", "Three"]

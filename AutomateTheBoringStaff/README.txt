@@ -38,3 +38,11 @@ Adding allMyDogs.py
 
 12:48 AM 10/27/2019
 Adding allMyDogs2.py
+
+1:07 AM 10/27/2019
+Adding myPets.py
+
+1:15 AM 10/27/2019
+Adding magic8Ball2.py
+
+

@@ -4,7 +4,7 @@ Created on Sun Oct 27 01:14:24 2019
 
 @author: Gunardi Saputra
 
-Adding magic8Ball2.py
+
 """
 import random
 

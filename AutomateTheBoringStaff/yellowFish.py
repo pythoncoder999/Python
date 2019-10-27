@@ -2,7 +2,7 @@
 """
 Created on Sat Oct 26 22:45:27 2019
 
-@author: owner
+@author: Gunardi Saputra
 """
 
 while True:

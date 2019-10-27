@@ -14,3 +14,11 @@ Adding yellowFish.py
 11:00 PM 10/26/2019
 Adding sixTimes.py
 
+11:02 PM 10/26/2019
+Adding printRandom.py
+
+11:22 PM 10/26/2019
+Adding helloFunction.py
+
+
+11:31 PM 10/26/2019

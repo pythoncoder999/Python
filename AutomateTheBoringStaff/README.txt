@@ -52,4 +52,10 @@ Adding passingReference.py
 1:48 PM 10/27/2019
 Adding birthDays.py
 
-#107
+7:27 AM 10/28/2019
+Adding characterCount.py
+
+7:31 AM 10/28/2019
+Adding ticTacToe.py
+
+

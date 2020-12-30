@@ -58,4 +58,22 @@ Adding characterCount.py
 7:31 AM 10/28/2019
 Adding ticTacToe.py
 
+8:17 AM 10/28/2019
+Adding inventory.py
+
+9:01 AM 10/28/2019
+Adding validateInput.py
+
+11:46 AM 10/28/2019
+Adding picnicTable.py
+
+12:04 PM 10/28/2019
+Adding pw.py
+
+1:37 PM 10/28/2019
+bulletPointAdder.py
+
+1:45 PM 10/28/2019
+isPhoneNumber.py
+
 

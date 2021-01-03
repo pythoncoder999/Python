@@ -28,6 +28,14 @@ WHITE = (255,255,255)
 SPAWN_RATE = 360
 FRAME_RATE = 60
 
+# Store the number of pizza bucks that players get at 
+# the start of the game
+STARTING_BUCKS = 15
+# To Do: Add BUCK_RATE here
+BUCK_RATE = 120
+# To Do: Add STARTING_BUCK_BOOSTER here
+STARTING_BUCK_BOOSTER = 1
+
 # Define speeds
 REG_SPEED = 2
 
@@ -102,10 +110,56 @@ class VampireSprite(sprite.Sprite):
 		game_window.blit(self.image,
 						(self.rect.x,self.rect.y))
 # Create new class
-
-
-
-
+class Counters(object):
+# Set up init method with four arguments
+	def __init__(self, pizza_bucks, buck_rate, buck_booster):
+# Start the game loop counter at 0
+		self.loop_count = 0
+# Set up the look of the counter on the screen
+		self.display_font = font.Font('pizza_font.ttf',25)
+# Set up the look of the counter on the screen
+		self.display_font = font.Font('pizza_font.ttf',25)
+# Define the pizza_bucks attribute using the pizza_bucks
+# argument
+		self.pizza_bucks = pizza_bucks
+# Define the buck_rate attribute using the buck_ratargument
+		self.buck_rate = buck_rate
+# To Do: Define the buck_booster attribute
+		self.buck_booster = buck_booster
+# To Do: Define the bucks_rect attribute
+		self.bucks_rect = None
+		
+# Increase the player's pizza buck based on time passing
+	def increment_bucks(self):
+# Add a set number of pizza bucks to the player's total once
+# every 120 times the game loop runs(approx.every 2 seconds)
+		if self.loop_count % self.buck_rate == 0:
+			self.pizza_bucks += self.buck_booster
+# Define a new method with two arguments
+	def draw_bucks(self, game_window):
+# Erase the last number from the game window
+		if bool(self.bucks_rect):
+			game_window.blit(BACKGROUND, 
+										(
+										self.bucks_rect.x,
+										self.bucks_rect.y,
+										self.bucks_rect
+										)
+		bucks_surf = self.display_font.render(str(self.pizza_bucks),True,WHITE)
+# Create a rect for bucks_surf
+		self.bucks_rect = bucks_surf.get_rect()
+# Place the counter in the middle of the tile on the
+# bottom-right corner
+		self.bucks_rect.x = WINDOW_WIDTH - 50
+		self.bucks_rect.y = WINDOW_WIDTH - 50
+# Display the new pizza bucks total to the game window
+		game_window.blit(bucks_surf, self.bucks_rect)
+# To Do: Define a method called update here
+	def update(self):
+# To Do: Add 1 to the value of loop_count here
+		self.loop_count += 1
+# To Do: Call the increment_bucks method here
+# increment_bucks()
 # To Do: Create BackgroundTile clas here
 class BackgroundTile(sprite.Sprite):
 
@@ -123,6 +177,8 @@ class BackgroundTile(sprite.Sprite):
 # Create class instances and groups
 # Create a group for all the VampireSprite instances
 all_vampires = sprite.Group()
+
+counters = Counters(STARTING_BUCKS, BUCK_RATE, STARTING_BUCK_BOOSTER)
 
 # ---
 

@@ -133,7 +133,7 @@ class VampireSprite(sprite.Sprite):
 		if self.health <= 0 or self.rect.x <= 100:
 			self.kill()
 			if self.rect.x <= 100:
-				counter.bad_reviews += 1
+				counters.bad_reviews += 1
 		else:
 			game_window.blit(self.image, (self.rect.x, self.rect.y))
 # To Do: Set rect attribute here
@@ -168,7 +168,7 @@ class Counters(object):
 # To Do: Add bad_reviews attribute here
 		self.bad_reviews = 0
 # To Do: Add bad_reviews_rect attribute here
-		self.bad_reviews_rect = None
+		self.bad_rev_rect = None
 # Increase the player's pizza buck based on time passing
 	def increment_bucks(self):
 # Add a set number of pizza bucks to the player's total once
@@ -196,7 +196,7 @@ class Counters(object):
 # Test if there is a new number of bad reviews and erase the
 # old number if there is
 		if bool(self.bad_rev_rect):
-			game_window.blit(BACKGROUND, (self.bad_rev_rect.x, self.bad_rev_rect.y), self.bad_rev_rect)
+			game_window.blit(BACKGROUND,(self.bad_rev_rect.x,self.bad_rev_rect.y), self.bad_rev_rect)
 # Tell the program the font and color to use in the display
 		bad_rev_surf = self.display_font.render(str(self.bad_reviews), True, WHITE)
 # Set up a rect so that we can interact with the number

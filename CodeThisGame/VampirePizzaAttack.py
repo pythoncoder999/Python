@@ -67,6 +67,27 @@ pizza_img = image.load('vampire.png')
 pizza_surf = Surface.convert_alpha(pizza_img)
 VAMPIRE_PIZZA = transform.scale(pizza_surf,(WIDTH,HEIGHT))
 
+# Set up trap images
+garlic_img = image.load('garlic.png')
+garlic_surf = Surface.convert_alpha(pizza_img)
+GARLIC = transform.scale(garlic_surf, (WIDTH, HEIGHT))
+
+# To Do: Load pizza cutter image
+cutter_img = image.load('pizzacutter.png')
+
+# To Do: Convert pizza cutter to a surface
+cutter_surf = Surface.convert_alpha(cutter_img)
+
+# To Do: Set the size of the pizza cutter
+CUTTER = transform.scale(cutter_surf, (WIDTH, HEIGHT))
+
+# To Do: Use 3 lines of code to import and set up the 
+# pepperoni image
+pepperoni_img = image.load('pepperoni.png')
+pepperoni_surf = Surface.convert_alpha(pepperoni_img)
+PEPPERONI = transform.scale(pepperoni_surf, (WIDTH, HEIGHT))
+
+
 # ---
 # Set up classes
 
@@ -99,24 +120,20 @@ class VampireSprite(sprite.Sprite):
 
 # To Do: Blit the vampire pizza image here
 		# game_window.blit(self.image, (self.rect.x, self.rect.y))
-		game_window.blit(BACKGROUND,
-						(self.rect.x, self.rect.y), self.rect)
+		game_window.blit(BACKGROUND,(self.rect.x, self.rect.y), self.rect)
 # To Do: Set rect attribute here
 		
 
 # Move the sprites
 		self.rect.x -= self.speed
 # Update the sprite image to the new location
-		game_window.blit(self.image,
-						(self.rect.x,self.rect.y))
+		game_window.blit(self.image,(self.rect.x,self.rect.y))
 # Create new class
 class Counters(object):
 # Set up init method with four arguments
 	def __init__(self, pizza_bucks, buck_rate, buck_booster):
 # Start the game loop counter at 0
 		self.loop_count = 0
-# Set up the look of the counter on the screen
-		self.display_font = font.Font('pizza_font.ttf',25)
 # Set up the look of the counter on the screen
 		self.display_font = font.Font('pizza_font.ttf',25)
 # Define the pizza_bucks attribute using the pizza_bucks
@@ -139,27 +156,52 @@ class Counters(object):
 	def draw_bucks(self, game_window):
 # Erase the last number from the game window
 		if bool(self.bucks_rect):
-			game_window.blit(BACKGROUND, 
-										(
-										self.bucks_rect.x,
-										self.bucks_rect.y,
-										self.bucks_rect
-										)
+			game_window.blit(BACKGROUND,(self.bucks_rect.x,self.bucks_rect.y),self.bucks_rect)
 		bucks_surf = self.display_font.render(str(self.pizza_bucks),True,WHITE)
 # Create a rect for bucks_surf
 		self.bucks_rect = bucks_surf.get_rect()
 # Place the counter in the middle of the tile on the
 # bottom-right corner
 		self.bucks_rect.x = WINDOW_WIDTH - 50
-		self.bucks_rect.y = WINDOW_WIDTH - 50
+		self.bucks_rect.y = WINDOW_HEIGHT - 50
 # Display the new pizza bucks total to the game window
-		game_window.blit(bucks_surf, self.bucks_rect)
+		GAME_WINDOW.blit(bucks_surf, self.bucks_rect)
 # To Do: Define a method called update here
-	def update(self):
+	# def update(self):
+	def update(self, game_window):
 # To Do: Add 1 to the value of loop_count here
 		self.loop_count += 1
 # To Do: Call the increment_bucks method here
-# increment_bucks()
+		self.increment_bucks()
+		
+# To Do: Call the draw_bucks method here
+		self.draw_bucks(game_window)
+		
+# Set up the different kinds of traps
+class Trap(object):
+	def __init__(self, trap_kind, cost, trap_img):
+		self.trap_kind = trap_kind
+		self.cost = cost
+		self.trap_img = trap_img
+		
+# To Do: Create a class called TrapApplicator here
+class TrapApplicator(object):
+
+# To Do: Define an __init__ method here
+	def __init__(self):
+# To Do: Add an attribute called selected here
+		self.selected = None
+# To Do: Define the select_trap method here
+		def select_trap(self, trap):
+# To Do: Test if cost less than or equal to pizza bucks
+			if trap.cost <= counters.pizza_bucks:
+				self.selected = trap
+				
+	def select_tile(self, tile, counters):
+		self.selected = tile.set_trap(self.selected, counters)
+# To Do: If it is, change the value of the self.selected
+
+
 # To Do: Create BackgroundTile clas here
 class BackgroundTile(sprite.Sprite):
 
@@ -170,9 +212,25 @@ class BackgroundTile(sprite.Sprite):
 		super().__init__()
 
 # To Do: Set effect attributhere
-		self.effect = False
+		# self.effect = False 
+		self.trap = None
+		self.rect = rect
 
-						
+# A subclass of BackgroundTile where the player can set traps
+class PlayTile(BackgroundTile):
+# Set the trap on the selected play tile
+	def set_trap(self, trap, counters):
+		if bool(trap) and not bool(self.trap):
+			counter.pizza_bucks -= trap.cost
+			self.trap = trap
+			if trap == EARN:
+				counters.buck_booster += 1
+		return None
+					
+# Draw the trap image to the select play tile
+	def draw_trap(self, game_window, trap_applicator):
+		if bool(self.trap):
+			game_window.blit(self.trap.trap_img, self.rect.x, self.rect.y)
 # ---
 # Create class instances and groups
 # Create a group for all the VampireSprite instances
@@ -180,8 +238,14 @@ all_vampires = sprite.Group()
 
 counters = Counters(STARTING_BUCKS, BUCK_RATE, STARTING_BUCK_BOOSTER)
 
-# ---
+SLOW = Trap('SLOW', 5, GARLIC)
+DAMAGE = Trap('DAMAGE', 3, CUTTER)
 
+# To Do: Add EARN trap here
+EARN = Trap('EARN', 7, PEPPERONI)
+# ---
+# To Do: Create TrapApplicator instance here
+trap_applicator = TrapApplicator()
 
 # ---
 # Initialize and draw background grid
@@ -254,8 +318,9 @@ while game_running:
 # was cliked and change the value of effect to True
 			tile_y = y // 100
 			tile_x = x // 100
-			tile_grid[tile_y][tile_x].effect = True
+			# tile_grid[tile_y][tile_x].effect = True
 			# print(x,y)
+			trap_applicator.select_tile(tile_grid[tile_y][tile_x], counters)
 			
 # To Do: Add second print statement here
 			# print("You clicked me!")
@@ -330,7 +395,8 @@ while game_running:
 # Update displays
 	for vampire in all_vampires:
 		vampire.update(GAME_WINDOW)
-			
+# To Do: Call the Counters update method here
+	counters.update(GAME_WINDOW)
 	display.update()
 
 # To Do: Set the frame rate

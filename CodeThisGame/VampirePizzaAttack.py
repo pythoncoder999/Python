@@ -185,19 +185,48 @@ class Counters(object):
 		self.bucks_rect = bucks_surf.get_rect()
 # Place the counter in the middle of the tile on the
 # bottom-right corner
-		self.bucks_rect.x = WINDOW_WIDTH - 50
+		self.bucks_rect.x = WINDOW_WIDTH - 150
 		self.bucks_rect.y = WINDOW_HEIGHT - 50
 # Display the new pizza bucks total to the game window
-		GAME_WINDOW.blit(bucks_surf, self.bucks_rect)
+		game_window.blit(bucks_surf, self.bucks_rect)
 		
 		
 # Draw the player's bad reviews total to the screen
 	def draw_bad_reviews(self, game_window):
 # Test if there is a new number of bad reviews and erase the
 # old number if there is
-		game_window.blit(BACKGROUND, (self.bad_rev_rect.x, self.bad_rev_rect.y), self.bad_rev_rect)
+		if bool(self.bad_rev_rect):
+			game_window.blit(BACKGROUND, (self.bad_rev_rect.x, self.bad_rev_rect.y), self.bad_rev_rect)
 # Tell the program the font and color to use in the display
 		bad_rev_surf = self.display_font.render(str(self.bad_reviews), True, WHITE)
+# Set up a rect so that we can interact with the number
+		self.bad_rev_rect = bad_rev_surf.get_rect()
+# Put the display in the second-to-last column and bottom
+# row of the grid
+		self.bad_rev_rect.x = WINDOW_WIDTH - 150
+		self.bad_rev_rect.y = WINDOW_HEIGHT - 50
+# Display the number to the screen
+		game_window.blit(bad_rev_surf, self.bad_rev_rect)
+		
+# To Do: Define the method draw_time here
+	def draw_timer(self, game_window):
+# To Do: Test for a new time
+		if bool(self.timer_rect):
+# To Do: Erase the old time if there's a new one
+			game_window.blit(BACKGROUND, (self.timer_rect.x, self.timer_rect.y), self.timer_rect)
+		
+# To Do: Tell the program the font and color for the display
+		timer_surf = self.display_font.render(str((WIN_TIME - self.loop_count)//FRAME_RATE), True, WHITE)
+# To Do: Set up rect
+		self.timer_rect = timer_surf.get_rect()
+
+# To Do: Tell the program which column to put the display in
+		self.timer_rect.x = WINDOW_WIDTH - 250
+# To Do: Tell the program which row to put the display in
+		self.timer_rect.y = WINDOW_WIDTH - 50
+# To Do: Display the time to the screen
+		game_window.blit(timer_surf, self.timer_rect)
+		
 # To Do: Define a method called update here
 	# def update(self):
 	def update(self, game_window):
@@ -208,7 +237,10 @@ class Counters(object):
 		
 # To Do: Call the draw_bucks method here
 		self.draw_bucks(game_window)
+		self.draw_bad_reviews(game_window)
 		
+# To Do: Call the draw_timer method here
+		self.draw_timer(game_window)
 # Set up the different kinds of traps
 class Trap(object):
 	def __init__(self, trap_kind, cost, trap_img):
@@ -224,10 +256,10 @@ class TrapApplicator(object):
 # To Do: Add an attribute called selected here
 		self.selected = None
 # To Do: Define the select_trap method here
-		def select_trap(self, trap):
+	def select_trap(self, trap):
 # To Do: Test if cost less than or equal to pizza bucks
-			if trap.cost <= counters.pizza_bucks:
-				self.selected = trap
+		if trap.cost <= counters.pizza_bucks:
+			self.selected = trap
 				
 	def select_tile(self, tile, counters):
 		self.selected = tile.set_trap(self.selected, counters)
@@ -280,10 +312,11 @@ class ButtonTile(BackgroundTile):
 	def draw_trap(self, game_window, trap_applicator):
 # To Do: Test if selected is True and if selected is equal
 # to self.trap
-		if trap_applicator.selected == self.trap:
+		if bool (trap_applicator.selected):
+			if trap_applicator.selected == self.trap:
 # To Do: If the test is True, draw a rectangle on the 
 # selected button tile
-			draw.rect(game_window, (238, 190, 47), (self.rect.x, self.rect.y, WIDTH, HEIGHT),5)
+				draw.rect(game_window, (238, 190, 47), (self.rect.x, self.rect.y, WIDTH, HEIGHT),5)
 # To Do: Create the InactiveTile class here
 class InactiveTile(BackgroundTile):
 # To Do: Define the set_trap method here
@@ -301,7 +334,7 @@ class InactiveTile(BackgroundTile):
 # Create a group for all the VampireSprite instances
 all_vampires = sprite.Group()
 
-counters = Counters(STARTING_BUCKS, BUCK_RATE, STARTING_BUCK_BOOSTER)
+counters = Counters(STARTING_BUCKS, BUCK_RATE, STARTING_BUCK_BOOSTER, WIN_TIME)
 
 SLOW = Trap('SLOW', 5, GARLIC)
 DAMAGE = Trap('DAMAGE', 3, CUTTER)
@@ -374,6 +407,7 @@ GAME_WINDOW.blit(BACKGROUND, (0,0))
 #------
 #Start Main Game Loop
 game_running = True
+program_running = True
 #Game Loop
 while game_running:
 
@@ -383,8 +417,8 @@ while game_running:
 #Exit loop on quit
 		if event.type == QUIT:
 			# game_running = False
-			running = False
-			
+			game_running = False
+			program_running = False
 # Listen for the mouse button to be clicked and run when clicked
 		elif event.type == MOUSEBUTTONDOWN:
 			
@@ -445,8 +479,17 @@ while game_running:
 		if bool(left_tile):
 			vampire.attack(left_tile)
 		if bool(right_tile):
-			vampire.attack(right_tile)
+			if right_tile != left_tile:
+				vampire.attack(right_tile)
 
+# To Do: Test for the lose condition here
+	if counters.bad_reviews >= MAX_BAD_REVIEWS:
+# To Do: If the player lost set game_running to False
+		game_running = False
+# To Do: Test for the win condition here
+	if counters.loop_count > WIN_TIME:
+# To Do: If the player won set game_running to False
+		game_running = False
 # Update displays
 	for vampire in all_vampires:
 		# vampire.update(GAME_WINDOW)
@@ -460,7 +503,34 @@ while game_running:
 	display.update()
 
 # To Do: Set the frame rate
-clock.tick(FRAME_RATE)
+	clock.tick(FRAME_RATE)
+
+# Set up the font
+end_font = font.Font('pizza_font.ttf', 50)
+
+# Test if either the win or lose condition has been met
+if program_running:
+# To Do: Test for lose condition here
+	if counters.bad_reviews >= MAX_BAD_REVIEWS:
+# To Do: Render the lose message here(end_surf, (350,200))
+		end_surf = end_font.render('Game Over', True, WHITE)
+# To Do: Else
+	else:
+# To Do: Render the win message here
+		end_surf = end_font.render('You Win', True, WHITE)
+# To Do: Blit the end message to the screen
+	GAME_WINDOW.blit(end_surf,(350, 200))
+	display.update()
+
+# Start end-of-game
+while program_running:
+	for event in pygame.event.get():
+# Listen for the QUIT event
+		if event.type == QUIT:
+			program_running = False
+# Set the frame rate
+	clock.tick(FRAME_RATE)
+
 
 #End of main game loop
 #----

@@ -36,6 +36,10 @@ BUCK_RATE = 120
 # To Do: Add STARTING_BUCK_BOOSTER here
 STARTING_BUCK_BOOSTER = 1
 
+# Set up win/lose conditions
+MAX_BAD_REVIEWS = 3
+WIN_TIME = FRAME_RATE * 60 * 3
+
 # Define speeds
 REG_SPEED = 2
 
@@ -115,23 +119,36 @@ class VampireSprite(sprite.Sprite):
 # Create a rect for each sprite and place it just off the
 # right side of the screen in the correct lane
 		self.rect = self.image.get_rect(center = (1100,y))
+
+# To Do: Create an attribute called health here
+		self.health = 100
 # To Do: Add update method here
-	def update(self, game_window):
+	# def update(self, game_window):
+	def update(self, game_window, counters):
 
 # To Do: Blit the vampire pizza image here
 		# game_window.blit(self.image, (self.rect.x, self.rect.y))
 		game_window.blit(BACKGROUND,(self.rect.x, self.rect.y), self.rect)
-# To Do: Set rect attribute here
-		
-
-# Move the sprites
 		self.rect.x -= self.speed
-# Update the sprite image to the new location
-		game_window.blit(self.image,(self.rect.x,self.rect.y))
+		if self.health <= 0 or self.rect.x <= 100:
+			self.kill()
+			if self.rect.x <= 100:
+				counter.bad_reviews += 1
+		else:
+			game_window.blit(self.image, (self.rect.x, self.rect.y))
+# To Do: Set rect attribute here
+	def attack(self, tile):
+		if tile.trap == SLOW:
+			self.speed = SLOW_SPEED
+# To Do: Test for the DAMAGE trap here
+		if tile.trap == DAMAGE:
+			self.health -= 1
+
 # Create new class
 class Counters(object):
 # Set up init method with four arguments
-	def __init__(self, pizza_bucks, buck_rate, buck_booster):
+	# def __init__(self, pizza_bucks, buck_rate, buck_booster):
+	def __init__(self, pizza_bucks, buck_rate, buck_booster, timer):
 # Start the game loop counter at 0
 		self.loop_count = 0
 # Set up the look of the counter on the screen
@@ -145,7 +162,13 @@ class Counters(object):
 		self.buck_booster = buck_booster
 # To Do: Define the bucks_rect attribute
 		self.bucks_rect = None
+		self.timer = timer
+		self.timer_rect = None
 		
+# To Do: Add bad_reviews attribute here
+		self.bad_reviews = 0
+# To Do: Add bad_reviews_rect attribute here
+		self.bad_reviews_rect = None
 # Increase the player's pizza buck based on time passing
 	def increment_bucks(self):
 # Add a set number of pizza bucks to the player's total once
@@ -166,6 +189,15 @@ class Counters(object):
 		self.bucks_rect.y = WINDOW_HEIGHT - 50
 # Display the new pizza bucks total to the game window
 		GAME_WINDOW.blit(bucks_surf, self.bucks_rect)
+		
+		
+# Draw the player's bad reviews total to the screen
+	def draw_bad_reviews(self, game_window):
+# Test if there is a new number of bad reviews and erase the
+# old number if there is
+		game_window.blit(BACKGROUND, (self.bad_rev_rect.x, self.bad_rev_rect.y), self.bad_rev_rect)
+# Tell the program the font and color to use in the display
+		bad_rev_surf = self.display_font.render(str(self.bad_reviews), True, WHITE)
 # To Do: Define a method called update here
 	# def update(self):
 	def update(self, game_window):
@@ -221,7 +253,7 @@ class PlayTile(BackgroundTile):
 # Set the trap on the selected play tile
 	def set_trap(self, trap, counters):
 		if bool(trap) and not bool(self.trap):
-			counter.pizza_bucks -= trap.cost
+			counters.pizza_bucks -= trap.cost
 			self.trap = trap
 			if trap == EARN:
 				counters.buck_booster += 1
@@ -230,7 +262,40 @@ class PlayTile(BackgroundTile):
 # Draw the trap image to the select play tile
 	def draw_trap(self, game_window, trap_applicator):
 		if bool(self.trap):
-			game_window.blit(self.trap.trap_img, self.rect.x, self.rect.y)
+			game_window.blit(self.trap.trap_img, (self.rect.x, self.rect.y))
+
+# To Do: Create the ButtonTile class here
+class ButtonTile(BackgroundTile):
+# To Do: Define the set_trap method here
+	def set_trap(self, trap, counters):
+# To Do: Test if the player has enough pizza bucks here
+		if counters.pizza_bucks >= self.trap.cost:
+# To Do: If player has enough pizza bucks, return self.trap
+			return self.trap
+# To Do: Else
+		else:
+# To Do: Return trap
+			return None
+# To Do: Define the draw_trap method here
+	def draw_trap(self, game_window, trap_applicator):
+# To Do: Test if selected is True and if selected is equal
+# to self.trap
+		if trap_applicator.selected == self.trap:
+# To Do: If the test is True, draw a rectangle on the 
+# selected button tile
+			draw.rect(game_window, (238, 190, 47), (self.rect.x, self.rect.y, WIDTH, HEIGHT),5)
+# To Do: Create the InactiveTile class here
+class InactiveTile(BackgroundTile):
+# To Do: Define the set_trap method here
+	def set_trap(self, trap, counters):
+	
+# To Do: Return trap
+		return None
+# To Do: Define the draw_trap method here
+	def draw_trap(self, game_window, trap_applicator):
+# To Do: Pass
+		pass
+
 # ---
 # Create class instances and groups
 # Create a group for all the VampireSprite instances
@@ -268,15 +333,30 @@ for row in range(6):
 		tile_rect = Rect(WIDTH*column, HEIGHT*row,
 						WIDTH, HEIGHT)
 # For each column in each row, create a new background tilsprite
-		new_tile = BackgroundTile(tile_rect)
+		# new_tile = BackgroundTile(tile_rect)
 		
+		if column <= 1:
+			new_tile = InactiveTile(tile_rect)
+		else:
+			if row == 5:
+				if 2<= column <= 4:
+					new_tile = ButtonTile(tile_rect)
+					new_tile.trap = [SLOW, DAMAGE, EARN][column-2]
+				else:
+					new_tile = InactiveTile(tile_rect)
+			else:
+				new_tile = PlayTile(tile_rect)
 # Add each new background tile sprite to the correct
 # row_of_tiles list
 		row_of_tiles.append(new_tile)
-
-		draw.rect(BACKGROUND, tile_color, 
-				(WIDTH*column, HEIGHT*row, WIDTH, HEIGHT), 1)
-
+		if row == 5 and 2<= column <= 4:
+			BACKGROUND.blit(new_tile.trap.trap_img, (new_tile.rect.x, new_tile.rect.y))
+		# draw.rect(BACKGROUND, tile_color, 
+				# (WIDTH*column, HEIGHT*row, WIDTH, HEIGHT), 1)
+		if column != 0 and row != 5:
+			if column != 1:
+				draw.rect(BACKGROUND, tile_color, (WIDTH * column, HEIGHT * row, WIDTH, HEIGHT), 1)
+				
 # To Do: Blit BACKGROUND at (0,0)
 GAME_WINDOW.blit(BACKGROUND, (0,0))
 
@@ -328,6 +408,11 @@ while game_running:
 	if randint(1,SPAWN_RATE) == 1:
 		VampireSprite()
 		
+	for tile_row in tile_grid:
+		for tile in tile_row:
+			if bool(tile.trap):
+				GAME_WINDOW.blit(BACKGROUND, (tile.rect.x, tile.rect.y), tile.rect)
+		
 # ---
 # set up collision detection
 # Run through each vampire pizza sprite in the
@@ -357,44 +442,19 @@ while game_running:
 		else:
 			right_tile = None
 		
-# Test if the left side of the vampire pizza is touching
-# a tile and if that tile has been clicked
-# If true, change the vampire speed to 1.
-		if bool(left_tile) and left_tile.effect:
-			vampire.speed = SLOW_SPEED
-# To Do: Replace the value of vampire.speed
-# Test if the right side of the sprite is touchinga tile
-# and if that tile has been clicked
-		if bool(right_tile) and right_tile.effect:
-# Test if the right and left sides of the sprite are
-# touching different tiles
-			if right_tile != left_tile:
-# If both tests are true, change the vampire speed to 1
-				vampire.speed = SLOW_SPEED
-# To Do: Replace the value of vampire.speed
-
-# Delete the vampire sprite when it leaves the screen
-		if vampire.rect.x <= 0:
-			vampire.kill()
-
-# TO Do: Test if the right side of the vampire sprite is
-# on the grid
-		if 0 <= vamp_right_side <=10:
-			right_tile = tile_row[vamp_right_side]
-# Returns no column if the vampire sprite is not on the grid
-		else:
-			right_tile = None
-		
-# To Do: Store the location of right_tile
-
-# To Do: Test if the right side of the vampire sprite
-# is not on the screen
-
-# To Do: Set the value of right_tile to None
+		if bool(left_tile):
+			vampire.attack(left_tile)
+		if bool(right_tile):
+			vampire.attack(right_tile)
 
 # Update displays
 	for vampire in all_vampires:
-		vampire.update(GAME_WINDOW)
+		# vampire.update(GAME_WINDOW)
+		vampire.update(GAME_WINDOW, counters)
+		
+	for tile_row in tile_grid:
+		for tile in tile_row:
+			tile.draw_trap(GAME_WINDOW, trap_applicator)
 # To Do: Call the Counters update method here
 	counters.update(GAME_WINDOW)
 	display.update()
